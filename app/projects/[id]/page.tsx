@@ -5,7 +5,7 @@ import { deleteDay1Trends } from "@/app/actions/day1";
 import { approvePlan, deleteDay2Plan } from "@/app/actions/day2";
 import { deleteDay3Assets } from "@/app/actions/day3";
 import { deleteDay4Video } from "@/app/actions/day4";
-import { STATUS_STYLES, type Project } from "@/lib/projects";
+import { statusStyle, type Project } from "@/lib/projects";
 import type {
   Day1Trends,
   Day2Plan,
@@ -147,7 +147,7 @@ export default async function ProjectDetailPage({
       <div className="rounded-2xl bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-gray-500">Project</p>
+            <p className="text-sm text-gray-500">Topic</p>
             <h2 className="mt-1 text-xl font-semibold text-gray-900">
               {project.niche}
             </h2>
@@ -157,7 +157,7 @@ export default async function ProjectDetailPage({
               {project.platform}
             </span>
             <span
-              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLES[project.status]}`}
+              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${statusStyle(project.status)}`}
             >
               {project.status}
             </span>

@@ -15,9 +15,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Shorts Admin",
-  description: "Admin panel for AI Shorts",
+  title: "Blog Research Admin",
+  description: "Admin panel for blog trend research",
 };
+
+// The admin reads rows that the research Skill writes straight into Supabase,
+// so nothing here may be prerendered at build time. Set on the root layout so
+// every nested route renders per request.
+export const dynamic = "force-dynamic";
 
 export default function RootLayout({
   children,
