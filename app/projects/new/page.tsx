@@ -13,14 +13,14 @@ export default function NewProjectPage() {
             htmlFor="niche"
             className="block text-sm font-medium text-gray-700"
           >
-            Niche
+            Topic
           </label>
           <input
             id="niche"
             name="niche"
             type="text"
             required
-            placeholder="e.g. Personal finance tips"
+            placeholder="e.g. AI tools for marketers"
             className="mt-1.5 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
           />
         </div>

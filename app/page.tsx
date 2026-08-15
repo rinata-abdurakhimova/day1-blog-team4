@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { deleteProject } from "@/app/actions/projects";
-import { STATUS_STYLES, type Project } from "@/lib/projects";
+import { statusStyle, type Project } from "@/lib/projects";
 
 export default async function Home() {
   const supabase = createClient();
@@ -30,7 +30,7 @@ export default async function Home() {
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wide text-gray-500">
-              <th className="px-6 py-4">Niche</th>
+              <th className="px-6 py-4">Topic</th>
               <th className="px-6 py-4">Platform</th>
               <th className="px-6 py-4">Status</th>
               <th className="px-6 py-4">Created</th>
@@ -61,7 +61,7 @@ export default async function Home() {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[project.status]}`}
+                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusStyle(project.status)}`}
                     >
                       {project.status}
                     </span>

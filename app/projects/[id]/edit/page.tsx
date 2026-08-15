@@ -39,7 +39,7 @@ export default async function EditProjectPage({
             htmlFor="niche"
             className="block text-sm font-medium text-gray-700"
           >
-            Niche
+            Topic
           </label>
           <input
             id="niche"

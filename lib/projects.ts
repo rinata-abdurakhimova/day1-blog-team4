@@ -1,10 +1,10 @@
-export const PLATFORMS = ["tiktok", "reels", "shorts"] as const;
+export const PLATFORMS = ["blog", "medium", "substack"] as const;
 export const STATUSES = [
   "created",
   "researched",
   "planned",
-  "produced",
-  "rendered",
+  "drafted",
+  "published",
 ] as const;
 
 export type Platform = (typeof PLATFORMS)[number];
@@ -23,6 +23,13 @@ export const STATUS_STYLES: Record<Status, string> = {
   created: "bg-gray-100 text-gray-600",
   researched: "bg-blue-50 text-blue-600",
   planned: "bg-amber-50 text-amber-700",
-  produced: "bg-violet-50 text-violet-700",
-  rendered: "bg-green-50 text-green-700",
+  drafted: "bg-violet-50 text-violet-700",
+  published: "bg-green-50 text-green-700",
 };
+
+// Rows can be written straight into Supabase by the research Skill, so a
+// status outside this list is possible. Fall back instead of rendering an
+// undefined class name.
+export function statusStyle(status: string): string {
+  return STATUS_STYLES[status as Status] ?? "bg-gray-100 text-gray-600";
+}
