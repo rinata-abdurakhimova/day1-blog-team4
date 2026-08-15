@@ -6,6 +6,24 @@ import { createClient, readSupabaseConfig } from "@/lib/supabase";
 // It reports presence only — never the values themselves.
 export const dynamic = "force-dynamic";
 
+// Error text from the Supabase client can quote the credential it was given
+// (an invalid header value is reported verbatim, for example). This route is
+// publicly reachable, so every string it echoes goes through here first.
+// Whitespace is tolerated inside the token patterns because a credential
+// pasted with a line break is exactly the case that produces such errors.
+function redact(text: string | null | undefined, secrets: string[]): string {
+  if (!text) return "(empty message)";
+
+  let safe = text;
+  for (const secret of secrets) {
+    if (secret) safe = safe.split(secret).join("[redacted]");
+  }
+
+  return safe
+    .replace(/sb_(secret|publishable)_[\w\-\s]{8,}/gi, "[redacted]")
+    .replace(/eyJ[\w\-.\s]{20,}/g, "[redacted]");
+}
+
 export async function GET() {
   const { url, key, missing } = readSupabaseConfig();
 
@@ -22,9 +40,26 @@ export async function GET() {
     return Response.json({ ok: false, env, missing }, { status: 500 });
   }
 
-  // The host is safe to echo back and is the field most likely to be wrong.
+  const secrets = [key, process.env.SUPABASE_SECRET_KEY ?? ""];
+
+  // A credential carrying a line break or stray whitespace cannot be sent as a
+  // header, and the resulting error is opaque. Name it directly instead.
+  if (/\s/.test(key)) {
+    return Response.json(
+      {
+        ok: false,
+        env,
+        error:
+          "The Supabase key contains whitespace or a line break. Re-paste it " +
+          "as a single line.",
+      },
+      { status: 500 },
+    );
+  }
+
   let host: string;
   try {
+    // The host is safe to echo back and is the field most likely to be wrong.
     host = new URL(url).host;
   } catch {
     return Response.json(
@@ -46,10 +81,9 @@ export async function GET() {
           ok: false,
           env,
           host,
-          error: error.message || "(empty message)",
+          error: redact(error.message, secrets),
           code: error.code,
-          details: error.details,
-          hint: error.hint,
+          hint: redact(error.hint, secrets),
         },
         { status: 500 },
       );
@@ -63,8 +97,7 @@ export async function GET() {
         ok: false,
         env,
         host,
-        error: `${error.name}: ${error.message || "(empty message)"}`,
-        cause: error.cause ? String(error.cause) : undefined,
+        error: `${error.name}: ${redact(error.message, secrets)}`,
       },
       { status: 500 },
     );
