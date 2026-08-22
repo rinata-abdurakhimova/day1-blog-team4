@@ -34,6 +34,7 @@ export type Day2Plan = {
   approved: boolean;
   approved_by: string | null;
   fallback_used: boolean;
+  created_at: string;
 };
 
 export type Day3Assets = {
