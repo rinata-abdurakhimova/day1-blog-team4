@@ -34,7 +34,77 @@ export type Day2Plan = {
   approved: boolean;
   approved_by: string | null;
   fallback_used: boolean;
+  created_at: string;
 };
+
+export type OutlineSection = {
+  h2?: string;
+  bullets?: string[];
+};
+
+export type BlogOutline = {
+  title?: string;
+  hook?: string;
+  angle?: string;
+  audience?: string;
+  cta?: string;
+  sections?: OutlineSection[];
+  seo_keywords?: string[];
+  estimated_words?: number;
+};
+
+// The pipeline writes hook_formats as a single object (not a list of hook
+// strings): { kind: "blog_outline", status, outline: {...}, review_note,
+// needs_manual_review }. Older/manual records may still store a plain array
+// of hook format strings. Normalize both shapes for display.
+export type HookFormatsSummary = {
+  hookStrings: string[];
+  outline: BlogOutline | null;
+  status: string | null;
+  needsManualReview: boolean;
+  reviewNote: string | null;
+};
+
+export function parseHookFormats(value: unknown): HookFormatsSummary {
+  if (Array.isArray(value)) {
+    return {
+      hookStrings: value.map((item) =>
+        typeof item === "string" ? item : JSON.stringify(item),
+      ),
+      outline: null,
+      status: null,
+      needsManualReview: false,
+      reviewNote: null,
+    };
+  }
+
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const outline =
+      record.outline && typeof record.outline === "object"
+        ? (record.outline as BlogOutline)
+        : null;
+
+    return {
+      hookStrings: [],
+      outline: outline && Object.keys(outline).length > 0 ? outline : null,
+      status: typeof record.status === "string" ? record.status : null,
+      needsManualReview: Boolean(record.needs_manual_review),
+      reviewNote:
+        typeof record.review_note === "string" && record.review_note
+          ? record.review_note
+          : null,
+    };
+  }
+
+  return {
+    hookStrings: [],
+    outline: null,
+    status: null,
+    needsManualReview: false,
+    reviewNote: null,
+  };
+}
 
 export type Day3Assets = {
   id: string;

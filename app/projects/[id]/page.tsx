@@ -6,25 +6,13 @@ import { approvePlan, deleteDay2Plan } from "@/app/actions/day2";
 import { deleteDay3Assets } from "@/app/actions/day3";
 import { deleteDay4Video } from "@/app/actions/day4";
 import { statusStyle, type Project } from "@/lib/projects";
-import type {
-  Day1Trends,
-  Day2Plan,
-  Day3Assets,
-  Day4Video,
+import {
+  parseHookFormats,
+  type Day1Trends,
+  type Day2Plan,
+  type Day3Assets,
+  type Day4Video,
 } from "@/lib/day-tables";
-
-function formatJsonList(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.map((item) => {
-    if (typeof item === "string") return item;
-    if (item && typeof item === "object") {
-      return Object.entries(item as Record<string, unknown>)
-        .map(([key, val]) => `${key}: ${val}`)
-        .join(", ");
-    }
-    return String(item);
-  });
-}
 
 function SectionHeader({
   title,
@@ -133,7 +121,7 @@ export default async function ProjectDetailPage({
   const day3 = day3Result.data;
   const day4 = day4Result.data;
 
-  const hookFormats = formatJsonList(day2?.hook_formats);
+  const hookFormats = parseHookFormats(day2?.hook_formats);
 
   return (
     <div className="space-y-6">
@@ -284,22 +272,77 @@ export default async function ProjectDetailPage({
                   {day2.approved ? "Затверджено" : "На розгляді"}
                 </span>
 
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                    Hook formats
-                  </p>
-                  {hookFormats.length === 0 ? (
-                    <p className="mt-2 text-sm text-gray-500">
-                      No hook formats yet
+                {hookFormats.hookStrings.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                      Hook formats
                     </p>
-                  ) : (
                     <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-600">
-                      {hookFormats.map((item, index) => (
+                      {hookFormats.hookStrings.map((item, index) => (
                         <li key={index}>{item}</li>
                       ))}
                     </ul>
-                  )}
-                </div>
+                  </div>
+                )}
+
+                {hookFormats.outline ? (
+                  <div className="space-y-3">
+                    {hookFormats.outline.title && (
+                      <p className="font-medium text-gray-900">
+                        {hookFormats.outline.title}
+                      </p>
+                    )}
+
+                    {hookFormats.outline.hook && (
+                      <p className="text-sm italic text-violet-700">
+                        “{hookFormats.outline.hook}”
+                      </p>
+                    )}
+
+                    {hookFormats.outline.angle && (
+                      <p className="text-sm text-gray-600">
+                        {hookFormats.outline.angle}
+                      </p>
+                    )}
+
+                    {hookFormats.outline.audience && (
+                      <p className="text-xs text-gray-500">
+                        Audience: {hookFormats.outline.audience}
+                      </p>
+                    )}
+
+                    {hookFormats.outline.sections &&
+                      hookFormats.outline.sections.length > 0 && (
+                        <ul className="list-disc space-y-1 pl-5 text-sm text-gray-600">
+                          {hookFormats.outline.sections.map(
+                            (section, index) => (
+                              <li key={index}>{section.h2}</li>
+                            ),
+                          )}
+                        </ul>
+                      )}
+
+                    {hookFormats.outline.seo_keywords &&
+                      hookFormats.outline.seo_keywords.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {hookFormats.outline.seo_keywords.map((tag) => (
+                            <span
+                              key={tag}
+                              className="rounded-full bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-600"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                ) : hookFormats.hookStrings.length === 0 ? (
+                  <p className="text-sm text-gray-500">
+                    {hookFormats.needsManualReview
+                      ? (hookFormats.reviewNote ?? "Needs manual review")
+                      : "No plan outline yet"}
+                  </p>
+                ) : null}
 
                 {!day2.approved && (
                   <form action={approvePlan.bind(null, id)}>

@@ -19,7 +19,10 @@ function FolderIcon({ className }: { className?: string }) {
   );
 }
 
-const navItems = [{ label: "Projects", href: "/", icon: FolderIcon }];
+const navItems = [
+  { label: "Projects", href: "/", icon: FolderIcon },
+  { label: "Day 2 · Plan", href: "/day2-plan", icon: FolderIcon },
+];
 
 export default function Sidebar() {
   return (
