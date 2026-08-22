@@ -1,22 +1,24 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import type { Project } from "@/lib/projects";
-import type { Day2Plan } from "@/lib/day-tables";
+import { parseHookFormats, type Day2Plan } from "@/lib/day-tables";
 
 function formatHookFormats(value: unknown): string {
-  if (!Array.isArray(value)) return "—";
-  if (value.length === 0) return "—";
-  return value
-    .map((item) => {
-      if (typeof item === "string") return item;
-      if (item && typeof item === "object") {
-        return Object.entries(item as Record<string, unknown>)
-          .map(([key, val]) => `${key}: ${val}`)
-          .join(", ");
-      }
-      return String(item);
-    })
-    .join("; ");
+  const parsed = parseHookFormats(value);
+
+  if (parsed.hookStrings.length > 0) {
+    return parsed.hookStrings.join("; ");
+  }
+
+  if (parsed.outline) {
+    return parsed.outline.title ?? parsed.outline.hook ?? "—";
+  }
+
+  if (parsed.needsManualReview) {
+    return parsed.reviewNote ?? "Needs manual review";
+  }
+
+  return "—";
 }
 
 export default async function Day2PlanPage() {
